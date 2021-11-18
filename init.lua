@@ -1,14 +1,20 @@
 
 local function register_effector_metric(nodename, metricname, prettyname)
 	local nodedef = minetest.registered_nodes[nodename]
-	if nodedef and nodedef.effector and nodedef.effector.action_on then
-		local metric_count = monitoring.counter("basic_machines_" .. metricname .. "_count",
-			"number of " .. prettyname .. " executes")
-		local metric_time = monitoring.counter("basic_machines_" .. metricname .. "_time",
-			"total time of " .. prettyname .. " executes in us")
+	if not nodedef then
+		return
+	end
+	local metric_count = monitoring.counter("basic_machines_" .. metricname .. "_count",
+		"number of " .. prettyname .. " executes")
+	local metric_time = monitoring.counter("basic_machines_" .. metricname .. "_time",
+		"total time of " .. prettyname .. " executes in us")
 
+
+	if nodedef.effector and nodedef.effector.action_on then
 		nodedef.effector.action_on = metric_count.wrap( metric_time.wraptime(nodedef.effector.action_on) )
-
+	end
+	if nodedef.mesecons and nodedef.mesecons.effector and nodedef.mesecons.effector.action_on then
+		nodedef.mesecons.effector.action_on = metric_count.wrap( metric_time.wraptime(nodedef.mesecons.effector.action_on) )
 	end
 end
 
